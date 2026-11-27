@@ -1,0 +1,480 @@
+[
+ {
+  "schema": 1,
+  "id": "portfolio",
+  "version": "0.1.0",
+  "group": "direction",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A01"
+  ],
+  "reviewers": [
+   "A06"
+  ],
+  "records": [
+   "portfolio_review"
+  ],
+  "gates": {
+   "discover": [
+    "portfolio_review"
+   ]
+  },
+  "approvals": [],
+  "panels": [
+   {
+    "id": "service-choice",
+    "question": "어떤 서비스를 계속할까",
+    "metric": "portfolio.margin",
+    "unit": "KRW",
+    "basis": "actual",
+    "source": "portfolio_review",
+    "max_age_hours": 720,
+    "next_action": "포트폴리오 결정",
+    "counter_metric": "founder_minutes"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "validation",
+  "version": "0.1.0",
+  "group": "direction",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A03"
+  ],
+  "reviewers": [
+   "A06"
+  ],
+  "records": [
+   "evidence",
+   "experiment"
+  ],
+  "gates": {
+   "discover": [
+    "problem_evidence"
+   ]
+  },
+  "approvals": [],
+  "panels": [
+   {
+    "id": "experiment",
+    "question": "가설이 맞는가",
+    "metric": "validation.activation",
+    "unit": "percent",
+    "basis": "actual",
+    "source": "experiment",
+    "max_age_hours": 168,
+    "next_action": "실험 결정",
+    "min_sample": 30
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "founder-ops",
+  "version": "0.1.0",
+  "group": "direction",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "code"
+  ],
+  "reviewers": [
+   "founder"
+  ],
+  "records": [
+   "time_record"
+  ],
+  "gates": {},
+  "approvals": [],
+  "panels": [
+   {
+    "id": "time-left",
+    "question": "이번 주에 남은 시간은",
+    "metric": "founder.minutes_left",
+    "unit": "minutes",
+    "basis": "actual",
+    "source": "time_record",
+    "max_age_hours": 24,
+    "next_action": "작업 이동"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "brand",
+  "version": "0.1.0",
+  "group": "market",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A05"
+  ],
+  "reviewers": [
+   "A08",
+   "A07"
+  ],
+  "records": [
+   "brand_kit"
+  ],
+  "gates": {
+   "define": [
+    "brand_kit"
+   ]
+  },
+  "approvals": [
+   "brand.publish",
+   "trademark.file"
+  ],
+  "panels": []
+ },
+ {
+  "schema": 1,
+  "id": "marketing",
+  "version": "0.1.0",
+  "group": "market",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A05"
+  ],
+  "reviewers": [
+   "A07"
+  ],
+  "records": [
+   "claim",
+   "campaign",
+   "consent"
+  ],
+  "gates": {
+   "release": [
+    "claim_register"
+   ]
+  },
+  "approvals": [
+   "message.send",
+   "ads.spend"
+  ],
+  "panels": [
+   {
+    "id": "campaign",
+    "question": "캠페인을 계속할까",
+    "metric": "marketing.cost_per_signup",
+    "unit": "KRW",
+    "basis": "actual",
+    "source": "campaign",
+    "max_age_hours": 48,
+    "next_action": "중지 검토",
+    "min_sample": 30,
+    "counter_metric": "unsubscribe_rate"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "monetization",
+  "version": "0.1.0",
+  "group": "money",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A04"
+  ],
+  "reviewers": [
+   "A06",
+   "A07"
+  ],
+  "records": [
+   "price_table",
+   "scenario"
+  ],
+  "gates": {
+   "define": [
+    "price_hypothesis"
+   ],
+   "release": [
+    "price_table"
+   ]
+  },
+  "approvals": [
+   "price.change"
+  ],
+  "panels": [
+   {
+    "id": "scenario",
+    "question": "가격을 바꿀까",
+    "metric": "monetization.margin",
+    "unit": "percent",
+    "basis": "forecast",
+    "source": "scenario",
+    "max_age_hours": 720,
+    "next_action": "가격 결정",
+    "counter_metric": "churn_rate"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "finance",
+  "version": "0.1.0",
+  "group": "money",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "code",
+   "A06"
+  ],
+  "reviewers": [
+   "A04"
+  ],
+  "records": [
+   "ledger_import",
+   "month_close"
+  ],
+  "gates": {
+   "operate": [
+    "month_close"
+   ]
+  },
+  "approvals": [
+   "refund.issue"
+  ],
+  "panels": [
+   {
+    "id": "runway",
+    "question": "현금이 얼마나 남았나",
+    "metric": "finance.runway",
+    "unit": "months",
+    "basis": "actual",
+    "source": "month_close",
+    "max_age_hours": 840,
+    "next_action": "지출 검토"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "support",
+  "version": "0.1.0",
+  "group": "customer",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A02"
+  ],
+  "reviewers": [
+   "A13",
+   "A07"
+  ],
+  "records": [
+   "ticket_summary"
+  ],
+  "gates": {
+   "release": [
+    "support_ready"
+   ]
+  },
+  "approvals": [
+   "message.send",
+   "refund.issue"
+  ],
+  "panels": [
+   {
+    "id": "open-tickets",
+    "question": "답을 기다리는 고객은",
+    "metric": "support.open",
+    "unit": "count",
+    "basis": "actual",
+    "source": "ticket_summary",
+    "max_age_hours": 24,
+    "next_action": "답변 확인"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "analytics",
+  "version": "0.1.0",
+  "group": "customer",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A06"
+  ],
+  "reviewers": [
+   "code",
+   "A01"
+  ],
+  "records": [
+   "metric_definition"
+  ],
+  "gates": {
+   "define": [
+    "metric_definition"
+   ],
+   "build": [
+    "metric_events"
+   ]
+  },
+  "approvals": [],
+  "panels": [
+   {
+    "id": "ai-cost",
+    "question": "AI 비용이 알맞은가",
+    "metric": "ai.cost_per_task",
+    "unit": "USD",
+    "basis": "actual",
+    "source": "metric_definition",
+    "max_age_hours": 168,
+    "next_action": "모델 설정 검토",
+    "counter_metric": "defect_rate"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "legal",
+  "version": "0.1.0",
+  "group": "protection",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A07",
+   "A15"
+  ],
+  "reviewers": [
+   "A16",
+   "expert"
+  ],
+  "records": [
+   "legal_bundle"
+  ],
+  "gates": {
+   "define": [
+    "legal_draft"
+   ],
+   "release": [
+    "legal_review"
+   ]
+  },
+  "approvals": [
+   "legal.publish"
+  ],
+  "panels": [
+   {
+    "id": "open-issues",
+    "question": "해결하지 않은 쟁점은",
+    "metric": "legal.open",
+    "unit": "count",
+    "basis": "actual",
+    "source": "legal_bundle",
+    "max_age_hours": 168,
+    "next_action": "전문가 확인"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "assets",
+  "version": "0.1.0",
+  "group": "protection",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "code",
+   "A12"
+  ],
+  "reviewers": [
+   "A16"
+  ],
+  "records": [
+   "asset",
+   "contract"
+  ],
+  "gates": {
+   "release": [
+    "asset_check"
+   ],
+   "retire": [
+    "asset_cancel"
+   ]
+  },
+  "approvals": [],
+  "panels": [
+   {
+    "id": "renewals",
+    "question": "곧 갱신할 것은",
+    "metric": "assets.renewal_30d",
+    "unit": "count",
+    "basis": "actual",
+    "source": "contract",
+    "max_age_hours": 24,
+    "next_action": "갱신 결정"
+   }
+  ]
+ },
+ {
+  "schema": 1,
+  "id": "company-ops",
+  "version": "0.1.0",
+  "group": "protection",
+  "scopes": [
+   "company",
+   "service"
+  ],
+  "makers": [
+   "A01"
+  ],
+  "reviewers": [
+   "A07",
+   "expert"
+  ],
+  "records": [
+   "obligation",
+   "risk"
+  ],
+  "gates": {
+   "retire": [
+    "closing_duties"
+   ]
+  },
+  "approvals": [],
+  "panels": [
+   {
+    "id": "due",
+    "question": "놓치면 안 되는 기한은",
+    "metric": "obligation.due_30d",
+    "unit": "count",
+    "basis": "actual",
+    "source": "obligation",
+    "max_age_hours": 24,
+    "next_action": "작업 생성"
+   }
+  ]
+ }
+]

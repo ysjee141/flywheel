@@ -1,0 +1,37 @@
+{
+ "schema": 1,
+ "id": "svc_demo-c",
+ "name": "예제 C",
+ "pack": {
+  "id": "type-c",
+  "version": "1.0.0"
+ },
+ "capabilities": [
+  "config",
+  "telemetry",
+  "health",
+  "backup",
+  "local-sync",
+  "store-release"
+ ],
+ "data": {
+  "classification": "none",
+  "retention_days": 30
+ },
+ "environments": {
+  "preview": {
+   "deployer_ref": "executor:svc_demo-c/preview"
+  }
+ },
+ "objectives": {
+  "availability_pct": 99.5,
+  "rpo_minutes": 60,
+  "rto_minutes": 240
+ },
+ "cost": {
+  "monthly_cap": 0,
+  "currency": "KRW"
+ },
+ "rollback": "staged-halt",
+ "owner": "founder"
+}

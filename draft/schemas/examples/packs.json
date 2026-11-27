@@ -1,0 +1,46 @@
+{
+ "type-a": {
+  "required": [
+   "auth",
+   "tenancy",
+   "billing",
+   "privacy"
+  ],
+  "optional": [
+   "push",
+   "mobile-ui"
+  ]
+ },
+ "type-b": {
+  "required": [
+   "abuse-control"
+  ],
+  "optional": [
+   "ads",
+   "billing"
+  ]
+ },
+ "type-c": {
+  "required": [
+   "local-sync",
+   "store-release"
+  ],
+  "optional": [
+   "auth",
+   "iap",
+   "push",
+   "privacy"
+  ]
+ },
+ "type-d": {
+  "required": [
+   "auth",
+   "tenancy",
+   "usage-billing",
+   "package-registry",
+   "isolation",
+   "privacy"
+  ],
+  "optional": []
+ }
+}

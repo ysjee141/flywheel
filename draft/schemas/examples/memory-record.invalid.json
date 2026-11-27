@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "mem_01JDZ8QK4T5V6W7X8Y9Z0A1B2C",
+  "scope": "global",
+  "project_id": "demo",
+  "kind": "instinct",
+  "status": "candidate",
+  "trust": "external",
+  "sensitivity": "internal",
+  "title": "웹훅 저장 후 응답",
+  "body": "이벤트 저장을 확정한 뒤 200을 반환한다.",
+  "trigger": "결제 웹훅 구현",
+  "action": "고유 키로 저장한 뒤 응답한다",
+  "source": {
+    "task_id": "t1",
+    "harness": "claude",
+    "refs": [
+      "ci:123"
+    ]
+  }
+}

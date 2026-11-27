@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "approval_id": "apr_1",
+  "task_id": "t1",
+  "action": "deploy.production",
+  "target": "web-demo",
+  "params": {
+    "region": "icn"
+  },
+  "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "commit_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "nonce": "AAAAAAAAAAAAAAAAAAAAAA",
+  "expires_at": 1
+}

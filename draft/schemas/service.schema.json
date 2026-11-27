@@ -1,0 +1,202 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "ax/service/1",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "schema",
+  "id",
+  "name",
+  "pack",
+  "capabilities",
+  "data",
+  "environments",
+  "objectives",
+  "cost",
+  "rollback",
+  "owner"
+ ],
+ "properties": {
+  "schema": {
+   "const": 1
+  },
+  "id": {
+   "type": "string",
+   "pattern": "^svc_[a-z0-9-]{3,40}$"
+  },
+  "name": {
+   "type": "string",
+   "minLength": 1
+  },
+  "pack": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "id",
+    "version"
+   ],
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^[a-z][a-z0-9-]{1,30}$"
+    },
+    "version": {
+     "type": "string",
+     "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    }
+   }
+  },
+  "capabilities": {
+   "type": "array",
+   "uniqueItems": true,
+   "items": {
+    "type": "string",
+    "pattern": "^[a-z][a-z0-9-]+$"
+   },
+   "allOf": [
+    {
+     "contains": {
+      "const": "config"
+     }
+    },
+    {
+     "contains": {
+      "const": "telemetry"
+     }
+    },
+    {
+     "contains": {
+      "const": "health"
+     }
+    },
+    {
+     "contains": {
+      "const": "backup"
+     }
+    }
+   ]
+  },
+  "data": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "classification",
+    "retention_days"
+   ],
+   "properties": {
+    "classification": {
+     "enum": [
+      "none",
+      "internal",
+      "personal",
+      "sensitive"
+     ]
+    },
+    "retention_days": {
+     "type": "integer",
+     "minimum": 0
+    }
+   }
+  },
+  "environments": {
+   "type": "object",
+   "minProperties": 1,
+   "propertyNames": {
+    "enum": [
+     "preview",
+     "staging",
+     "production"
+    ]
+   },
+   "additionalProperties": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "deployer_ref"
+    ],
+    "properties": {
+     "deployer_ref": {
+      "type": "string",
+      "pattern": "^executor:svc_[a-z0-9-]+/[a-z]+$"
+     }
+    }
+   }
+  },
+  "objectives": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "availability_pct",
+    "rpo_minutes",
+    "rto_minutes"
+   ],
+   "properties": {
+    "availability_pct": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 100
+    },
+    "rpo_minutes": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "rto_minutes": {
+     "type": "integer",
+     "minimum": 1
+    }
+   }
+  },
+  "cost": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "monthly_cap",
+    "currency"
+   ],
+   "properties": {
+    "monthly_cap": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "currency": {
+     "type": "string",
+     "pattern": "^[A-Z]{3}$"
+    }
+   }
+  },
+  "rollback": {
+   "enum": [
+    "previous-artifact",
+    "feature-flag",
+    "staged-halt"
+   ]
+  },
+  "owner": {
+   "type": "string",
+   "minLength": 1
+  }
+ },
+ "if": {
+  "properties": {
+   "data": {
+    "properties": {
+     "classification": {
+      "enum": [
+       "personal",
+       "sensitive"
+      ]
+     }
+    }
+   }
+  }
+ },
+ "then": {
+  "properties": {
+   "capabilities": {
+    "contains": {
+     "const": "privacy"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,10 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"ax/approval-payload/1","type":"object","additionalProperties":false,
+"required":["schema","approval_id","task_id","action","target","params","artifact_sha256","nonce","expires_at"],
+"properties":{"schema":{"const":1},"approval_id":{"type":"string","pattern":"^apr_"},"task_id":{"type":"string"},
+"action":{"enum":["merge.confirm","merge.r2","deploy.production","db.migrate","message.send","ads.spend","store.submit","marketplace.publish","price.change","legal.publish","brand.publish","trademark.file","refund.issue","policy.change"]},
+"target":{"type":"string","minLength":1},"params":{"type":"object"},
+"artifact_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},"commit_sha":{"type":"string","pattern":"^[0-9a-f]{40}$"},
+"max_spend_micro_usd":{"type":"integer","minimum":0},
+"nonce":{"type":"string","minLength":22},"expires_at":{"type":"integer"}},
+"allOf":[{"if":{"properties":{"action":{"enum":["merge.confirm","merge.r2","deploy.production","db.migrate"]}}},"then":{"required":["commit_sha"]}},
+{"if":{"properties":{"action":{"const":"ads.spend"}}},"then":{"required":["max_spend_micro_usd"]}}]}

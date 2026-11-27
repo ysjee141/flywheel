@@ -1,0 +1,10 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"ax/task/1","type":"object","additionalProperties":false,
+"required":["schema","project","goal","risk","acceptance"],
+"properties":{"schema":{"const":1},"project":{"type":"string"},"goal":{"type":"string","minLength":10,"maxLength":1000},
+"risk":{"enum":["R0","R1","R2","R3"]},"budget_micro_usd":{"type":"integer","minimum":1},
+"paths":{"type":"array","items":{"type":"string","not":{"pattern":"(^/|\\.\\.)"}}},
+"depends_on":{"type":"array","uniqueItems":true,"items":{"type":"string"}},
+"non_goals":{"type":"array","items":{"type":"string"}},
+"acceptance":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["id","given","when","then","verify"],
+"properties":{"id":{"type":"string","pattern":"^AC-[0-9]+$"},"given":{"type":"string"},"when":{"type":"string"},"then":{"type":"string"},
+"verify":{"type":"object","required":["kind","ref"],"additionalProperties":false,"properties":{"kind":{"enum":["test","command","manual"]},"ref":{"type":"string","minLength":1}}}}}}}}

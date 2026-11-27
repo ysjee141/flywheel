@@ -1,0 +1,2 @@
+{"schema":1,"project":"demo","goal":"이미지 크기 변환 화면을 추가한다","risk":"R1","budget_micro_usd":3000000,"paths":["apps/web/**"],
+"acceptance":[{"id":"AC-1","given":"PNG 파일 1개","when":"너비 100을 입력","then":"너비 100인 PNG를 받는다","verify":{"kind":"test","ref":"tests/resize.spec.ts"}}]}

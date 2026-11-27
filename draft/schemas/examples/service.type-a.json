@@ -1,0 +1,39 @@
+{
+ "schema": 1,
+ "id": "svc_demo-a",
+ "name": "예제 A",
+ "pack": {
+  "id": "type-a",
+  "version": "1.0.0"
+ },
+ "capabilities": [
+  "config",
+  "telemetry",
+  "health",
+  "backup",
+  "auth",
+  "tenancy",
+  "billing",
+  "privacy"
+ ],
+ "data": {
+  "classification": "personal",
+  "retention_days": 30
+ },
+ "environments": {
+  "preview": {
+   "deployer_ref": "executor:svc_demo-a/preview"
+  }
+ },
+ "objectives": {
+  "availability_pct": 99.5,
+  "rpo_minutes": 60,
+  "rto_minutes": 240
+ },
+ "cost": {
+  "monthly_cap": 0,
+  "currency": "KRW"
+ },
+ "rollback": "previous-artifact",
+ "owner": "founder"
+}
