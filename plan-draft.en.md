@@ -45,7 +45,7 @@ flowchart LR
 | G-02 | Provide Project modules that plan, design, build, and operate projects. |
 | G-03 | Provide Memory modules that store and improve company and project knowledge. |
 | G-04 | Provide growing harnesses that improve the Platform and each Project. |
-| G-05 | Let the founder see and decide on all projects from one screen. |
+| G-05 | Let the Maker see and decide on all projects from one screen. |
 
 ### 2.2 Non-goals (out of v1 scope)
 
@@ -62,7 +62,7 @@ These values are **proposals**. Measure a baseline in Phase 1, then confirm the 
 |---|---|---|---|
 | KPI-01 | New project setup time | Time from project creation to first PRD approval | 1 day or less |
 | KPI-02 | Shared module reuse rate | Reused modules ÷ modules used by the project | 70% or more |
-| KPI-03 | Founder management time | Weekly time for approvals, reviews, and decisions | 5 hours/week or less |
+| KPI-03 | Maker management time | Weekly time for approvals, reviews, and decisions | 5 hours/week or less |
 | KPI-04 | Feedback closure rate | Closed feedback ÷ received feedback (30 days) | 80% or more |
 | KPI-05 | Project completion rate | Launched projects ÷ started projects | Increase over baseline |
 | KPI-06 | Rule-violating merges | PRs merged with LOC or architecture violations | 0 |
@@ -96,7 +96,7 @@ Also watch counter-metrics. Do not use the "number" of promoted knowledge items 
 | NFR-03 | Disabling a module stops all its agents, Skills, and Hooks. | Call test after disable |
 | NFR-04 | Monthly AI cost does not exceed the budget cap. | Budget ledger |
 | NFR-05 | Memory search is p95 200 ms or less at 10,000 records. | Benchmark |
-| NFR-06 | Every high-risk action has a founder approval record. | Audit log |
+| NFR-06 | Every high-risk action has a Maker approval record. | Audit log |
 
 ## 4. Concept Model
 
@@ -104,12 +104,12 @@ Flywheel sees the company as 3 layers. Each layer is a set of modules.
 
 ```mermaid
 flowchart TB
-  F((Founder))
+  F((Maker))
   subgraph PL["Platform layer"]
     PO[Platform Orchestrator]
     REG[Module Registry]
     HITL[HITL gate]
-    CON[Founder Console]
+    CON[Maker Console]
   end
   subgraph CO["Company layer (shared)"]
     C1[Finance] & C2[Business] & C3[Branding] & C4[Marketing] & C9[Legal & Privacy]
@@ -141,6 +141,7 @@ flowchart TB
 
 | Term | Meaning |
 |---|---|
+| Maker | The owner and decision maker of the one-person company. The Maker gives every HITL approval. In this document, "human" means the Maker. |
 | Module | One bundle of business function. It has agent roles, Skills, workflows, templates, and a Memory scope. |
 | Company module | A module with one instance for the whole company. All projects share it. |
 | Project module | A module instance created for each project. |
@@ -172,15 +173,15 @@ Each artifact has exactly one owner module. Other modules read the artifact or r
 
 | Component | Responsibility |
 |---|---|
-| `fw` CLI | Command-line tool for the founder and the Orchestrators. |
-| Founder Console | Web dashboard. Shows progress, pending approvals, cost, and risk. |
+| `fw` CLI | Command-line tool for the Maker and the Orchestrators. |
+| Maker Console | Web dashboard. Shows progress, pending approvals, cost, and risk. |
 | Control Plane (`fw-core`) | Decides task state, permissions, approvals, and budget. Runs outside agents. |
 | Module Registry | Manages the module list, versions, and state (enabled/disabled). |
 | Platform Orchestrator | Runs company-level work and creates projects. |
 | Project Orchestrator | Runs the workflow of one project. |
 | Harness Adapter | Calls agent tools such as Claude Code and Codex in the same way. |
 | Memory Service | Stores, searches, and promotes Knowledge and Wiki records. |
-| HITL Gateway | Creates approval requests, verifies founder responses, and records them. |
+| HITL Gateway | Creates approval requests, verifies Maker responses, and records them. |
 | Sandbox | Isolated environment where agents run. It has no secrets. |
 | Core Services | Agent config audit, eval management, budget and model router, integration management. Cannot be disabled (§6.5). |
 
@@ -188,8 +189,8 @@ Each artifact has exactly one owner module. Other modules read the artifact or r
 
 ```mermaid
 flowchart LR
-  F[Founder] --> CLI[fw CLI]
-  F --> WEB[Founder Console]
+  F[Maker] --> CLI[fw CLI]
+  F --> WEB[Maker Console]
   subgraph CP["Control Plane (trusted)"]
     CLI --> CORE[fw-core]
     WEB --> CORE
@@ -262,7 +263,7 @@ v0.2 adds 4 modules. Added modules show **Added** in the "Origin" column. The ot
 
 | Module | Origin | Responsibility | Main artifacts | Main HITL gates | Priority |
 |---|---|---|---|---|---|
-| Project Manager | Request | Analyzes progress and risk. Keeps the project healthy. Records founder decisions. | Milestones, task board, weekly status, risk register, decision log | Schedule or scope change | P1 |
+| Project Manager | Request | Analyzes progress and risk. Keeps the project healthy. Records Maker decisions. | Milestones, task board, weekly status, risk register, decision log | Schedule or scope change | P1 |
 | Planning | Request | Analyzes and plans the service. | PRD | PRD approval | P1 |
 | Architecture | Request | Designs the structure that implements the plan. | ADR, Technical Spec | ADR and Spec approval | P1 |
 | UI/UX Design | Request | Designs usability and screens. Checks accessibility. | User flows, wireframes, HTML screen drafts, accessibility checklist | Screen draft approval | P2 |
@@ -293,7 +294,7 @@ These functions do not become new modules. They become responsibilities of exist
 | Portfolio management | Business + Platform Orchestrator | Service start, hold, and stop decisions; resource allocation |
 | Assets, accounts, subscriptions | Security (accounts, keys, domains), Finance (subscriptions, renewal cost) | Owned asset list, renewal schedule, cancel procedure |
 | Tax and filing schedule | Finance | VAT, income tax, business obligation calendar |
-| Founder time and decision log | PM + Founder Console | Weekly review, decision log, approval load (KPI-03) |
+| Maker time and decision log | PM + Maker Console | Weekly review, decision log, approval load (KPI-03) |
 | Operations and incident response (SRE) | DevOps | Monitoring, alerts, incident records, postmortems. Incident records go to Wiki Memory. |
 | Accessibility | UI/UX | Accessibility standards and checks |
 | Internationalization | Frontend, App | i18n resource structure |
@@ -407,13 +408,13 @@ Rules:
 | Count | 1 | 1 per project |
 | Main work | Create and stop projects, run Company modules, allocate resources and budget, improve the Platform harness | Run work from planning to operations, coordinate Project modules, report risk |
 | Modules run | Company modules, Memory modules | Project modules |
-| Reports to | Founder | Platform Orchestrator, Founder |
+| Reports to | Maker | Platform Orchestrator, Maker |
 
 ### 8.2 Work Flow
 
 ```mermaid
 sequenceDiagram
-  actor F as Founder
+  actor F as Maker
   participant PO as Platform Orchestrator
   participant BIZ as Business module
   participant JO as Project Orchestrator
@@ -455,7 +456,7 @@ stateDiagram-v2
   awaiting_approval --> done: approved
   awaiting_approval --> running: rejected (with feedback)
   running --> blocked: retry cap, budget exceeded, dependency not done
-  blocked --> queued: founder action
+  blocked --> queued: Maker action
   done --> [*]
 ```
 
@@ -492,16 +493,16 @@ flowchart LR
 | Level | Cycle | Who | What it fixes |
 |---|---|---|---|
 | Task loop | One task | QA module, review agent | This artifact |
-| Project loop | Milestone, retrospective | PM module, founder | Project plan, Wiki Memory |
-| Company loop | Monthly, project end | Platform Orchestrator, Dreaming, founder | Harness, modules, Knowledge Memory |
+| Project loop | Milestone, retrospective | PM module, Maker | Project plan, Wiki Memory |
+| Company loop | Monthly, project end | Platform Orchestrator, Dreaming, Maker | Harness, modules, Knowledge Memory |
 
 ### 9.3 HITL Levels
 
 | Level | Name | Behavior | Example |
 |---|---|---|---|
 | L0 | Automatic | Record only. | Run tests, draft documents |
-| L1 | Notify | Run and notify the founder. The founder can revert. | Push to a dev branch, Wiki draft |
-| L2 | Approve | Run only after founder approval. | PRD approval, PR merge, knowledge promotion |
+| L1 | Notify | Run and notify the Maker. The Maker can revert. | Push to a dev branch, Wiki draft |
+| L2 | Approve | Run only after Maker approval. | PRD approval, PR merge, knowledge promotion |
 | L3 | Strong approval | Approve after re-authentication (passkey). The approval is single-use and bound to a content hash. | Production deploy, payment, external posting, secret change |
 
 Rules:
@@ -509,7 +510,7 @@ Rules:
 1. Modules declare gate levels in the manifest. Platform policy enforces minimum levels.
 2. If the content changes after approval, the approval is void.
 3. A rejection needs a reason. The reason is stored as feedback and becomes input to the next run.
-4. If an approval waits too long, the Console notifies the founder. Agents do other work while they wait.
+4. If an approval waits too long, the Console notifies the Maker. Agents do other work while they wait.
 
 (Reuses previous design [ADR-0006](draft/adr/0006-webauthn-approval.md) and [17 Feedback Loop](draft/17-feedback-loop.md).)
 
@@ -520,7 +521,7 @@ Rules:
 | Store | Scope | Examples | Write rights |
 |---|---|---|---|
 | Knowledge | Company | Coding rules, security standards, brand principles, architecture patterns, cost standards | Only through promotion |
-| Wiki | Project | Domain terms, PRD summary, ADR list, retrospectives, incident records | Agents propose. The founder or PM confirms. |
+| Wiki | Project | Domain terms, PRD summary, ADR list, retrospectives, incident records | Agents propose. The Maker or PM confirms. |
 | Task log | Task | Checkpoints, run logs | System writes. Cleaned up after the retention period. |
 
 ### 10.2 Record Fields
@@ -531,7 +532,7 @@ Every Memory record has these fields.
 |---|---|
 | `scope` | `company` or `project:{id}` |
 | `kind` | fact, decision, rule, pattern, lesson |
-| `trust` | `founder`, `verified`, `agent`, `external` |
+| `trust` | `maker`, `verified`, `agent`, `external` |
 | `source` | Evidence link (task, PR, document) |
 | `status` | `proposed`, `active`, `deprecated` |
 | `valid_until` | Review date |
@@ -546,19 +547,19 @@ flowchart LR
   B --> C{Enough evidence?<br/>2+ different tasks}
   C -->|no| B
   C -->|yes| D[Propose Wiki update]
-  D --> E{Founder approval L2}
+  D --> E{Maker approval L2}
   E -->|approve| F[Wiki active]
   F --> G{Applies to other projects?}
   G -->|yes| H[Propose Knowledge promotion]
-  H --> I{Founder approval L2}
+  H --> I{Maker approval L2}
   I -->|approve| J[Knowledge active<br/>PR to harness rules]
 ```
 
-Automation only creates candidates. Only founder approval applies them. (Reuses previous design [ADR-0003](draft/adr/0003-human-promoted-learning.md).)
+Automation only creates candidates. Only Maker approval applies them. (Reuses previous design [ADR-0003](draft/adr/0003-human-promoted-learning.md).)
 
 ### 10.4 Dreaming Service
 
-Dreaming is a batch job that runs while the founder rests (for example, early every morning).
+Dreaming is a batch job that runs while the Maker rests (for example, early every morning).
 
 | Job | Result |
 |---|---|
@@ -598,7 +599,7 @@ flowchart TB
   O[Observe runs<br/>failures, rejections, rework] --> C[Improvement candidates<br/>rules, Skills, Hooks, evals]
   C --> E[Run evals<br/>compare before and after]
   E --> P[Change PR]
-  P --> H{Founder approval}
+  P --> H{Maker approval}
   H -->|approve| V[New harness version]
   V --> S[Propose sync to project harnesses]
   S --> O
@@ -730,7 +731,7 @@ flywheel/
 ├── AGENTS.md                 # Platform harness instructions (source of truth)
 ├── apps/
 │   ├── cli/                  # fw CLI
-│   └── console/              # Founder Console (Next.js)
+│   └── console/              # Maker Console (Next.js)
 ├── packages/
 │   ├── core/                 # Control Plane: state, policy, budget
 │   ├── orchestrator/         # Platform / Project Orchestrator
@@ -782,7 +783,7 @@ CI also checks documents. It checks sentence length, banned words, glossary viol
 
 ## 16. Roadmap
 
-Move to the next phase by exit criteria, not by dates. Estimate time after the founder confirms available hours (Q-01).
+Move to the next phase by exit criteria, not by dates. Estimate time after the Maker confirms available hours (Q-01).
 
 ```mermaid
 flowchart LR
@@ -796,7 +797,7 @@ flowchart LR
 |---|---|---|
 | Phase 0 Foundation | Minimal Platform harness, STE-KO rules, LOC checker, module manifest schema, repo and CI setup, sandbox check | The LOC checker blocks violating PRs in CI. Manifest schema checks work. |
 | Phase 1 Core and dev loop | Control Plane, task state machine, Module Registry (with `owns` check), HITL Gateway (L0–L2), minimal Project Orchestrator, Memory (Knowledge and Wiki store and search), Core Services (config audit, budget router, minimal eval manager), 8 modules: PM, Planning, Architecture, Server, Frontend, QA, Security, Finance (cost ledger) | One project completes PRD → ADR/Spec → build → QA verification → merge with approval gates. |
-| Phase 2 Service factory | Platform Orchestrator, project creation template, Design System (HTML SSOT, token export), Integration Manager, modules: UI/UX, App, DBA, DevOps, Branding, Business, Legal & Privacy, Release, AI Features; HITL L3, Founder Console | A new project is ready within one day. One reference service deploys with legal documents and rolls back. |
+| Phase 2 Service factory | Platform Orchestrator, project creation template, Design System (HTML SSOT, token export), Integration Manager, modules: UI/UX, App, DBA, DevOps, Branding, Business, Legal & Privacy, Release, AI Features; HITL L3, Maker Console | A new project is ready within one day. One reference service deploys with legal documents and rolls back. |
 | Phase 3 Company operations | Marketing and Analytics modules, multi-project operations, weekly company report, harness sync | Two or more projects run at the same time. The weekly report is generated automatically. |
 | Phase 4 Learning and expansion | Dreaming, vector search, automatic harness improvement candidates, CS module | Measure the approval rate of Dreaming candidates. Harness improvements raise eval scores. |
 
@@ -810,7 +811,7 @@ The first build target is Flywheel itself. From Phase 1, the Platform builds its
 | R-02 | An agent merges a wrong change. | Lower service quality, security incident | Keep merge and deploy rights outside agents. Enforce HITL L2 and L3. |
 | R-03 | Polluted knowledge becomes a rule. | Wrong rules spread to all projects. | Allow only trust levels, evidence conditions, and human promotion. |
 | R-04 | AI cost grows. | Financial burden | Put the Finance budget ledger and Budget Router in Phase 1. Set per-task caps. |
-| R-05 | Too many approval requests. | Founder time runs out; approval fatigue | Measure and tune gate levels. Support batch approval. Watch KPI-03. |
+| R-05 | Too many approval requests. | Maker time runs out; approval fatigue | Measure and tune gate levels. Support batch approval. Watch KPI-03. |
 | R-06 | External tools (such as Claude Code) change behavior. | Hooks or adapters break | Wrap them with the Harness Adapter. Keep contract tests per version. |
 | R-07 | The LOC rule causes harmful splits. | Meaningless small functions increase. | The review agent checks split quality. Allow exception comments. |
 | R-08 | HTML SSOT is hard to move to native apps. | Design differences across platforms | Export only tokens automatically. Build components per platform and compare with visual regression. |
@@ -821,7 +822,7 @@ The first build target is Flywheel itself. From Phase 1, the Platform builds its
 
 | ID | Question | Default (proposed) |
 |---|---|---|
-| Q-01 | How many hours per week does the founder have? | 20 hours/week, from the previous design |
+| Q-01 | How many hours per week does the Maker have? | 20 hours/week, from the previous design |
 | Q-02 | How much of the previous design ([draft/](draft/README.md)) carries over? | Keep the security boundary, approval, and Memory promotion decisions. Follow this plan for module structure. |
 | Q-03 | Is the command `fw` or the previous `ax`? | `fw` (matches the product name Flywheel) |
 | Q-04 | Is the Platform implementation language TypeScript? | TypeScript |
@@ -869,7 +870,7 @@ The `draft/` folder in this repository holds detailed design v1, made from an ea
 
 ## Appendix B. Next Steps
 
-1. The founder answers the open decisions in §18.
+1. The Maker answers the open decisions in §18.
 2. Review this plan and revise it to v0.3.
 3. Estimate the detailed task list and hours for Phase 0.
 4. Build the module manifest JSON Schema and the LOC checker first.

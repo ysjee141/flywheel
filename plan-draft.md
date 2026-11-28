@@ -45,7 +45,7 @@ flowchart LR
 | G-02 | 프로젝트를 기획, 설계, 구현, 운영하는 Project 모듈을 제공한다. |
 | G-03 | 회사 지식과 프로젝트 지식을 쌓고 개선하는 Memory 모듈을 제공한다. |
 | G-04 | Platform과 Project가 스스로 개선되는 성장형 하네스를 제공한다. |
-| G-05 | 창업자가 한 화면에서 모든 프로젝트를 보고 판단하게 한다. |
+| G-05 | 메이커가 한 화면에서 모든 프로젝트를 보고 판단하게 한다. |
 
 ### 2.2 비목표 (v1 범위 밖)
 
@@ -62,7 +62,7 @@ flowchart LR
 |---|---|---|---|
 | KPI-01 | 새 프로젝트 준비 시간 | 프로젝트 생성부터 첫 PRD 승인까지 걸린 시간 | 1일 이하 |
 | KPI-02 | 공통 모듈 재사용률 | 재사용한 모듈 수 ÷ 프로젝트가 쓴 모듈 수 | 70% 이상 |
-| KPI-03 | 창업자 관리 시간 | 승인, 검토, 판단에 쓴 주간 시간 | 주 5시간 이하 |
+| KPI-03 | 메이커 관리 시간 | 승인, 검토, 판단에 쓴 주간 시간 | 주 5시간 이하 |
 | KPI-04 | 피드백 반영률 | 닫은 피드백 수 ÷ 받은 피드백 수 (30일) | 80% 이상 |
 | KPI-05 | 프로젝트 완료율 | 출시한 프로젝트 수 ÷ 시작한 프로젝트 수 | 기준선 대비 증가 |
 | KPI-06 | 규칙 위반 병합 | LOC, 아키텍처 규칙을 어긴 채 병합된 PR 수 | 0건 |
@@ -96,7 +96,7 @@ flowchart LR
 | NFR-03 | 모듈을 끄면 그 모듈의 에이전트, Skill, Hook이 모두 멈춘다. | 비활성화 후 호출 시험 |
 | NFR-04 | 월 AI 비용이 예산 상한을 넘지 않는다. | 예산 원장 |
 | NFR-05 | Memory 검색은 1만 건에서 p95 200ms 이하다. | 벤치마크 |
-| NFR-06 | 모든 고위험 작업은 창업자 승인 기록을 가진다. | 감사 로그 |
+| NFR-06 | 모든 고위험 작업은 메이커 승인 기록을 가진다. | 감사 로그 |
 
 ## 4. 개념 모델
 
@@ -104,12 +104,12 @@ Flywheel은 회사를 3개 계층으로 본다. 각 계층은 모듈의 집합�
 
 ```mermaid
 flowchart TB
-  F((창업자))
+  F((메이커))
   subgraph PL["Platform 계층"]
     PO[Platform Orchestrator]
     REG[Module Registry]
     HITL[HITL 관문]
-    CON[Founder Console]
+    CON[Maker Console]
   end
   subgraph CO["Company 계층 (회사 공통)"]
     C1[재무] & C2[사업] & C3[브랜딩] & C4[마케팅] & C9[법무·개인정보]
@@ -141,6 +141,7 @@ flowchart TB
 
 | 용어 | 뜻 |
 |---|---|
+| 메이커 | 1인 기업의 소유자이자 결정권자다. 모든 HITL 승인을 한다. 이 문서에서 "사람"은 메이커를 뜻한다. |
 | 모듈 | 하나의 업무 기능 묶음이다. 에이전트 역할, Skill, Workflow, 템플릿, Memory 범위를 가진다. |
 | Company 모듈 | 회사 전체에 하나만 있는 모듈이다. 모든 프로젝트가 함께 쓴다. |
 | Project 모듈 | 프로젝트마다 하나씩 생기는 모듈 인스턴스다. |
@@ -172,15 +173,15 @@ flowchart LR
 
 | 구성 요소 | 책임 |
 |---|---|
-| `fw` CLI | 창업자와 Orchestrator가 쓰는 명령줄 도구다. |
-| Founder Console | 웹 대시보드다. 진행 상황, 승인 대기, 비용, 위험을 보여 준다. |
+| `fw` CLI | 메이커와 Orchestrator가 쓰는 명령줄 도구다. |
+| Maker Console | 웹 대시보드다. 진행 상황, 승인 대기, 비용, 위험을 보여 준다. |
 | Control Plane (`fw-core`) | 작업 상태, 권한, 승인, 예산을 결정한다. 에이전트 밖에서 실행한다. |
 | Module Registry | 모듈 목록, 버전, 상태(활성/비활성)를 관리한다. |
 | Platform Orchestrator | 회사 단위 작업과 프로젝트 생성을 실행한다. |
 | Project Orchestrator | 프로젝트 하나의 작업 흐름을 실행한다. |
 | Harness Adapter | Claude Code, Codex 같은 에이전트 도구를 같은 방식으로 호출한다. |
 | Memory Service | Knowledge, Wiki 저장소와 검색, 승격을 담당한다. |
-| HITL Gateway | 승인 요청을 만들고, 창업자 응답을 검증하고, 기록한다. |
+| HITL Gateway | 승인 요청을 만들고, 메이커 응답을 검증하고, 기록한다. |
 | Sandbox | 에이전트가 실행되는 격리 환경이다. 비밀값이 없다. |
 | Core Services | 에이전트 설정 감사, 평가 관리, 예산·모델 라우터, 연동 관리다. 끌 수 없다(§6.5). |
 
@@ -188,8 +189,8 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  F[창업자] --> CLI[fw CLI]
-  F --> WEB[Founder Console]
+  F[메이커] --> CLI[fw CLI]
+  F --> WEB[Maker Console]
   subgraph CP["Control Plane (신뢰)"]
     CLI --> CORE[fw-core]
     WEB --> CORE
@@ -262,7 +263,7 @@ v0.2에서 모듈 4개를 추가했다. 추가한 모듈은 "구분" 열에 **�
 
 | 모듈 | 구분 | 책임 | 주요 산출물 | 주요 HITL 관문 | 우선순위 |
 |---|---|---|---|---|---|
-| Project Manager | 요구 | 진행 현황과 위험을 분석한다. 프로젝트를 건강하게 유지한다. 창업자의 결정을 기록한다. | 마일스톤, 작업 보드, 주간 상태 보고, 위험 대장, 결정 로그 | 일정·범위 변경 | P1 |
+| Project Manager | 요구 | 진행 현황과 위험을 분석한다. 프로젝트를 건강하게 유지한다. 메이커의 결정을 기록한다. | 마일스톤, 작업 보드, 주간 상태 보고, 위험 대장, 결정 로그 | 일정·범위 변경 | P1 |
 | 기획 (Planning) | 요구 | 서비스를 분석하고 기획한다. | PRD | PRD 승인 | P1 |
 | 설계 (Architecture) | 요구 | 기획을 구현할 구조를 설계한다. | ADR, Technical Spec | ADR·Spec 승인 | P1 |
 | UI/UX 디자인 | 요구 | 사용성을 설계하고 화면을 디자인한다. 접근성을 점검한다. | 사용자 흐름, 와이어프레임, HTML 화면 시안, 접근성 점검표 | 화면 시안 승인 | P2 |
@@ -293,7 +294,7 @@ v0.2에서 모듈 4개를 추가했다. 추가한 모듈은 "구분" 열에 **�
 | 포트폴리오 관리 | 사업 + Platform Orchestrator | 서비스의 시작·보류·종료 판단, 자원 배분 |
 | 자산·계정·구독 | 보안 (계정·키·도메인), 재무 (구독·갱신 비용) | 소유 자산 목록, 갱신 일정, 해지 절차 |
 | 세무·신고 일정 | 재무 | 부가세, 종합소득세, 사업자 의무 달력 |
-| 창업자 시간·결정 기록 | PM + Founder Console | 주간 검토, 결정 로그, 승인 부담(KPI-03) |
+| 메이커 시간·결정 기록 | PM + Maker Console | 주간 검토, 결정 로그, 승인 부담(KPI-03) |
 | 운영·장애 대응 (SRE) | DevOps | 모니터링, 경보, 장애 기록, 사후 분석. 장애 기록은 Wiki Memory에 넣는다. |
 | 접근성 | UI/UX | 접근성 기준과 점검 |
 | 다국어 | 프론트엔드, 앱 개발 | 다국어 리소스 구조 |
@@ -407,13 +408,13 @@ stateDiagram-v2
 | 수 | 1개 | 프로젝트마다 1개 |
 | 주요 작업 | 프로젝트 생성·중단, Company 모듈 실행, 자원·예산 배분, Platform 하네스 개선 | 기획부터 운영까지 작업 실행, Project 모듈 조정, 위험 보고 |
 | 실행 모듈 | Company 모듈, Memory 모듈 | Project 모듈 |
-| 보고 대상 | 창업자 | Platform Orchestrator, 창업자 |
+| 보고 대상 | 메이커 | Platform Orchestrator, 메이커 |
 
 ### 8.2 작업 흐름
 
 ```mermaid
 sequenceDiagram
-  actor F as 창업자
+  actor F as 메이커
   participant PO as Platform Orchestrator
   participant BIZ as 사업 모듈
   participant JO as Project Orchestrator
@@ -455,7 +456,7 @@ stateDiagram-v2
   awaiting_approval --> done: 승인
   awaiting_approval --> running: 반려 (피드백 포함)
   running --> blocked: 재시도 상한, 예산 초과, 의존 미완료
-  blocked --> queued: 창업자 조치
+  blocked --> queued: 메이커 조치
   done --> [*]
 ```
 
@@ -492,16 +493,16 @@ flowchart LR
 | 층 | 주기 | 누가 | 무엇을 고치나 |
 |---|---|---|---|
 | 작업 루프 | 작업 1건 | QA 모듈, 리뷰 에이전트 | 이번 산출물 |
-| 프로젝트 루프 | 마일스톤, 회고 | PM 모듈, 창업자 | 프로젝트 계획, Wiki Memory |
-| 회사 루프 | 월간, 프로젝트 종료 | Platform Orchestrator, Dreaming, 창업자 | 하네스, 모듈, Knowledge Memory |
+| 프로젝트 루프 | 마일스톤, 회고 | PM 모듈, 메이커 | 프로젝트 계획, Wiki Memory |
+| 회사 루프 | 월간, 프로젝트 종료 | Platform Orchestrator, Dreaming, 메이커 | 하네스, 모듈, Knowledge Memory |
 
 ### 9.3 HITL 수준
 
 | 수준 | 이름 | 동작 | 예 |
 |---|---|---|---|
 | L0 | 자동 | 기록만 한다. | 테스트 실행, 문서 초안 작성 |
-| L1 | 알림 | 실행하고 창업자에게 알린다. 창업자는 되돌릴 수 있다. | 개발 브랜치 푸시, Wiki 초안 |
-| L2 | 승인 | 창업자가 승인해야 실행한다. | PRD 확정, PR 병합, 지식 승격 |
+| L1 | 알림 | 실행하고 메이커에게 알린다. 메이커는 되돌릴 수 있다. | 개발 브랜치 푸시, Wiki 초안 |
+| L2 | 승인 | 메이커가 승인해야 실행한다. | PRD 확정, PR 병합, 지식 승격 |
 | L3 | 강한 승인 | 재인증(패스키) 후 승인한다. 승인은 1회용이고 내용 해시에 묶인다. | 프로덕션 배포, 결제, 외부 게시, 비밀값 변경 |
 
 규칙은 다음과 같다.
@@ -520,7 +521,7 @@ flowchart LR
 | 저장소 | 범위 | 내용 예 | 쓰기 권한 |
 |---|---|---|---|
 | Knowledge | 회사 | 코딩 규칙, 보안 기준, 브랜드 원칙, 아키텍처 패턴, 비용 기준 | 승격으로만 쓴다. |
-| Wiki | 프로젝트 | 도메인 용어, PRD 요약, ADR 목록, 회고, 장애 기록 | 에이전트는 제안한다. 창업자 또는 PM이 확정한다. |
+| Wiki | 프로젝트 | 도메인 용어, PRD 요약, ADR 목록, 회고, 장애 기록 | 에이전트는 제안한다. 메이커 또는 PM이 확정한다. |
 | 작업 기록 | 작업 | 체크포인트, 실행 로그 | 시스템이 쓴다. 보존 기간 뒤 정리한다. |
 
 ### 10.2 레코드 필드
@@ -531,7 +532,7 @@ flowchart LR
 |---|---|
 | `scope` | `company` 또는 `project:{id}` |
 | `kind` | 사실, 결정, 규칙, 패턴, 교훈 |
-| `trust` | `founder`, `verified`, `agent`, `external` |
+| `trust` | `maker`, `verified`, `agent`, `external` |
 | `source` | 근거 링크(작업, PR, 문서) |
 | `status` | `proposed`, `active`, `deprecated` |
 | `valid_until` | 재검토 날짜 |
@@ -546,19 +547,19 @@ flowchart LR
   B --> C{증거 충분?<br/>서로 다른 작업 2건 이상}
   C -->|아니오| B
   C -->|예| D[Wiki 반영 제안]
-  D --> E{창업자 승인 L2}
+  D --> E{메이커 승인 L2}
   E -->|승인| F[Wiki active]
   F --> G{다른 프로젝트에도 해당?}
   G -->|예| H[Knowledge 승격 제안]
-  H --> I{창업자 승인 L2}
+  H --> I{메이커 승인 L2}
   I -->|승인| J[Knowledge active<br/>하네스 규칙에 반영 PR]
 ```
 
-자동화는 후보만 만든다. 반영은 창업자 승인으로만 한다. (이전 설계 [ADR-0003](draft/adr/0003-human-promoted-learning.md) 재사용)
+자동화는 후보만 만든다. 반영은 메이커 승인으로만 한다. (이전 설계 [ADR-0003](draft/adr/0003-human-promoted-learning.md) 재사용)
 
 ### 10.4 Dreaming 서비스
 
-Dreaming은 창업자가 쉬는 동안(예: 매일 새벽) 실행하는 배치 작업이다.
+Dreaming은 메이커가 쉬는 동안(예: 매일 새벽) 실행하는 배치 작업이다.
 
 | 작업 | 결과 |
 |---|---|
@@ -598,7 +599,7 @@ flowchart TB
   O[실행 관찰<br/>실패·반려·재작업] --> C[개선 후보<br/>규칙·Skill·Hook·평가]
   C --> E[평가 실행<br/>개선 전후 비교]
   E --> P[변경 PR]
-  P --> H{창업자 승인}
+  P --> H{메이커 승인}
   H -->|승인| V[하네스 새 버전]
   V --> S[프로젝트 하네스에 동기화 제안]
   S --> O
@@ -730,7 +731,7 @@ flywheel/
 ├── AGENTS.md                 # Platform 하네스 지시 정본
 ├── apps/
 │   ├── cli/                  # fw CLI
-│   └── console/              # Founder Console (Next.js)
+│   └── console/              # Maker Console (Next.js)
 ├── packages/
 │   ├── core/                 # Control Plane: 상태, 정책, 예산
 │   ├── orchestrator/         # Platform / Project Orchestrator
@@ -782,7 +783,7 @@ CI는 문서도 검사한다. 문장 길이, 금지어, 용어집 위반, Mermai
 
 ## 16. 로드맵
 
-날짜가 아니라 통과 조건으로 단계를 넘긴다. 시간 산정은 창업자 가용 시간을 확정한 뒤 한다(Q-01).
+날짜가 아니라 통과 조건으로 단계를 넘긴다. 시간 산정은 메이커 가용 시간을 확정한 뒤 한다(Q-01).
 
 ```mermaid
 flowchart LR
@@ -796,7 +797,7 @@ flowchart LR
 |---|---|---|
 | Phase 0 기반 | Platform 하네스 최소판, STE-KO 규칙, LOC 검사기, 모듈 매니페스트 스키마, 저장소·CI 구성, 샌드박스 확인 | LOC 검사기가 CI에서 위반 PR을 막는다. 매니페스트 스키마 검사가 동작한다. |
 | Phase 1 코어와 개발 루프 | Control Plane, 작업 상태 머신, Module Registry(`owns` 검사 포함), HITL Gateway(L0~L2), Project Orchestrator 최소판, Memory(Knowledge·Wiki 저장·검색), Core Services(설정 감사, 예산 라우터, 평가 관리 최소판), 모듈 8개: PM·기획·설계·서버·프론트엔드·QA·보안·재무(비용 원장) | 프로젝트 1개에서 PRD → ADR/Spec → 구현 → QA 검증 → 병합을 승인 관문과 함께 끝낸다. |
-| Phase 2 서비스 팩토리 | Platform Orchestrator, 프로젝트 생성 템플릿, 디자인 시스템(HTML SSOT·토큰 내보내기), 연동 관리, 모듈: UI/UX·앱·DBA·DevOps·브랜딩·사업·법무·개인정보·릴리스 관리·AI 기능, HITL L3, Founder Console | 새 프로젝트를 하루 안에 준비한다. 기준 서비스 1개를 법무 문서와 함께 배포하고 되돌린다. |
+| Phase 2 서비스 팩토리 | Platform Orchestrator, 프로젝트 생성 템플릿, 디자인 시스템(HTML SSOT·토큰 내보내기), 연동 관리, 모듈: UI/UX·앱·DBA·DevOps·브랜딩·사업·법무·개인정보·릴리스 관리·AI 기능, HITL L3, Maker Console | 새 프로젝트를 하루 안에 준비한다. 기준 서비스 1개를 법무 문서와 함께 배포하고 되돌린다. |
 | Phase 3 회사 운영 | 마케팅·데이터 분석 모듈, 다중 프로젝트 운영, 회사 주간 보고, 하네스 동기화 | 프로젝트 2개 이상을 동시에 운영한다. 주간 보고가 자동으로 나온다. |
 | Phase 4 학습과 확장 | Dreaming, 벡터 검색, 하네스 자동 개선 후보, CS 모듈 | Dreaming 후보의 승인율을 측정한다. 하네스 개선이 평가 점수를 올린다. |
 
@@ -810,7 +811,7 @@ flowchart LR
 | R-02 | 에이전트가 잘못된 변경을 병합한다. | 서비스 품질 저하, 보안 사고 | 병합·배포 권한을 에이전트 밖에 둔다. HITL L2·L3를 강제한다. |
 | R-03 | 오염된 지식이 규칙이 된다. | 잘못된 규칙이 모든 프로젝트에 퍼진다. | 신뢰 등급, 증거 조건, 사람 승격만 허용한다. |
 | R-04 | AI 비용이 커진다. | 재무 부담 | 재무 모듈의 예산 원장을 Phase 1에 넣는다. 작업별 상한을 둔다. |
-| R-05 | 승인 요청이 너무 많다. | 창업자 시간 부족, 승인 피로 | 관문 수준을 측정하고 조정한다. 묶음 승인을 지원한다. KPI-03을 본다. |
+| R-05 | 승인 요청이 너무 많다. | 메이커 시간 부족, 승인 피로 | 관문 수준을 측정하고 조정한다. 묶음 승인을 지원한다. KPI-03을 본다. |
 | R-06 | 외부 도구(Claude Code 등)의 동작이 바뀐다. | Hook, 어댑터 고장 | Harness Adapter로 감싼다. 버전별 계약 시험을 둔다. |
 | R-07 | LOC 규칙이 품질을 해치는 분리를 만든다. | 의미 없는 작은 함수가 는다. | 리뷰 에이전트가 분리의 질을 본다. 예외 주석을 허용한다. |
 | R-08 | HTML SSOT를 네이티브 앱에 옮기기 어렵다. | 플랫폼별 디자인 차이 | 토큰만 자동 내보낸다. 컴포넌트는 플랫폼별로 구현하고 시각 회귀로 비교한다. |
@@ -821,7 +822,7 @@ flowchart LR
 
 | ID | 질문 | 기본값 (제안) |
 |---|---|---|
-| Q-01 | 창업자의 주당 가용 시간은 얼마인가? | 이전 설계의 주 20시간 |
+| Q-01 | 메이커의 주당 가용 시간은 얼마인가? | 이전 설계의 주 20시간 |
 | Q-02 | 이전 상세 설계([draft/](draft/README.md))를 어디까지 이어 쓰는가? | 보안 경계, 승인, Memory 승격 결정은 이어 쓴다. 모듈 구조는 이 계획서를 따른다. |
 | Q-03 | 명령어 이름은 `fw`인가, 이전 설계의 `ax`인가? | `fw` (제품명 Flywheel과 맞춘다) |
 | Q-04 | Platform 구현 언어는 TypeScript인가? | TypeScript |
@@ -869,7 +870,7 @@ flowchart LR
 
 ## 부록 B. 다음 작업
 
-1. 창업자가 §18의 결정 사항에 답한다.
+1. 메이커가 §18의 결정 사항에 답한다.
 2. 이 계획서를 검토하고 v0.3으로 고친다.
 3. Phase 0의 상세 작업 목록과 시간을 산정한다.
 4. 모듈 매니페스트 JSON Schema와 LOC 검사기를 먼저 만든다.
