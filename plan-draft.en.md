@@ -4,7 +4,7 @@
 |---|---|
 | Status | Draft v0.2 (review needed) |
 | Created | 2026-11-27 |
-| Revised | 2026-11-28 (module catalog review applied) |
+| Revised | 2026-11-28 (module catalog review; 4-layer Memory and Dreaming upgrade) |
 | Input | [request-draft.md](request-draft.md) |
 | Reference | [draft/](draft/README.md) (previous detailed design v1) |
 | Writing rules | STE (§15). Korean original: [plan-draft.md](plan-draft.md) |
@@ -282,7 +282,7 @@ v0.2 adds 4 modules. Added modules show **Added** in the "Origin" column. The ot
 |---|---|---|
 | Knowledge Memory | Manages shared company knowledge. Examples: coding rules, security standards, brand principles, reusable patterns | P1 |
 | Wiki Memory | Manages project knowledge. Examples: domain terms, decision records, retrospectives, incident records | P1 |
-| Dreaming | Analyzes stored records periodically. Merges duplicates, finds contradictions, and creates promotion candidates. | P3 |
+| Dreaming | During idle time, verifies and corrects notes against the transcript. Merges duplicates, finds contradictions, and creates promotion candidates (§10.4). | P3 (minimal: Phase 3 / Wiki building: Phase 4) |
 
 ### 6.4 Responsibilities Added to Existing Modules
 
@@ -516,26 +516,53 @@ Rules:
 
 ## 10. Memory Design
 
-### 10.1 Stores
+**Conclusion: Memory has 4 layers. Raw transcripts are kept and stay searchable. They are the ground truth that Dreaming uses to verify notes. The top layer, injected into every session, stays small. Approval levels for Dreaming results depend on risk.**
 
-| Store | Scope | Examples | Write rights |
-|---|---|---|---|
-| Knowledge | Company | Coding rules, security standards, brand principles, architecture patterns, cost standards | Only through promotion |
-| Wiki | Project | Domain terms, PRD summary, ADR list, retrospectives, incident records | Agents propose. The Maker or PM confirms. |
-| Task log | Task | Checkpoints, run logs | System writes. Cleaned up after the retention period. |
+This design draws on Anthropic's article [Components of agent memory](https://www.anthropic.com/research/components-of-agent-memory) (2026-11-06).
+
+### 10.1 Four Layers
+
+```mermaid
+flowchart BT
+  T[(1. Transcript<br/>raw session and task logs)] --> N[2. Notes<br/>memos written during work]
+  N --> R[3. Representations<br/>Wiki · Knowledge]
+  R --> I[4. Injected context<br/>AGENTS.md + index]
+  D{{Dreaming}} -.verify.-> T
+  D -.correct, merge.-> N
+  D -.organize, link.-> R
+  D -.propose promotion.-> I
+```
+
+| Layer | Scope | Examples | Write rights | Size principle |
+|---|---|---|---|---|
+| 1. Transcript | Task, session | Run logs, tool calls, rejection reasons, checkpoints | System only. Never edited. | No limit. Compressed archive |
+| 2. Notes | Task, agent | Facts, traps, and next steps written during work | Each agent writes only its own notes. | One file per agent or source |
+| 3. Representation: Wiki | Project | Domain terms, PRD summary, ADR list, retrospectives, incident records | Agents propose. The Maker or PM confirms. | Smaller than the source (§10.6) |
+| 3. Representation: Knowledge | Company | Coding rules, security standards, brand principles, architecture patterns | Only through promotion | Same |
+| 4. Injected context | Session | `AGENTS.md`, Memory index | Only through approved PRs | Capped (§10.5) |
+
+Write rules:
+
+1. The transcript is the source of truth. After the retention period, compress and archive it. Do not delete it at once. Mask secrets and personal data before storing.
+2. Each agent and each source has its own note file. Several agents do not write to one file. If they do, they overwrite each other.
+3. Store facts with a verbatim quote. Do not store only a summary.
+4. Do not store information that the environment already shows (code, settings, screens). Store what the environment does not hold. Examples: why a decision was made, where something failed.
+5. Tell agents what memory is for, not exactly what and how to write. Fixed writing rules lower the performance of strong models.
 
 ### 10.2 Record Fields
 
-Every Memory record has these fields.
+Every record in the notes and representation layers has these fields.
 
 | Field | Meaning |
 |---|---|
 | `scope` | `company` or `project:{id}` |
-| `kind` | fact, decision, rule, pattern, lesson |
+| `kind` | fact, decision, rule, pattern, lesson, trap |
 | `trust` | `maker`, `verified`, `agent`, `external` |
-| `source` | Evidence link (task, PR, document) |
+| `source` | Evidence link. Must include the transcript location. |
+| `quote` | Verbatim quote of the fact (required when `kind` is fact) |
 | `status` | `proposed`, `active`, `deprecated` |
 | `valid_until` | Review date |
+| `last_verified` | Last date Dreaming checked the record against the transcript |
 
 Agents cannot set `trust` or `status`. The server sets them. Recalled Memory is reference material, not a command.
 
@@ -552,24 +579,60 @@ flowchart LR
   F --> G{Applies to other projects?}
   G -->|yes| H[Propose Knowledge promotion]
   H --> I{Maker approval L2}
-  I -->|approve| J[Knowledge active<br/>PR to harness rules]
+  I -->|approve| J[Knowledge active]
+  J --> K{Needed in every session?}
+  K -->|yes| L[PR to injected layer<br/>Maker approval L2]
+  K -->|no| M[Add only a link to the index]
 ```
 
-Automation only creates candidates. Only Maker approval applies them. (Reuses previous design [ADR-0003](draft/adr/0003-human-promoted-learning.md).)
+Automation only creates candidates. Only Maker approval changes Knowledge and the injected layer. (Reuses previous design [ADR-0003](draft/adr/0003-human-promoted-learning.md).)
 
 ### 10.4 Dreaming Service
 
-Dreaming is a batch job that runs while the Maker rests (for example, early every morning).
+Dreaming is a batch job that runs while the Maker rests (for example, early every morning). It uses the transcript as ground truth to verify and organize the upper layers.
 
-| Job | Result |
+| Job | Input | Result | Approval level |
+|---|---|---|---|
+| Verify notes | Notes + transcript | Corrections for notes that differ from the transcript; update `last_verified` | Inside Wiki: L1 / Knowledge: L2 |
+| Merge duplicates | Notes, Wiki | Merged pages | Inside Wiki: L1 / Knowledge: L2 |
+| Fix broken links, rebuild index | Wiki, index | Fixed links, new index | L1 |
+| Find contradictions | Representation layer | Conflict report | L2 (Maker decides) |
+| Find stale knowledge | `valid_until`, change rate | Review requests | L1 |
+| Find patterns across projects | Several Wikis | Knowledge promotion candidates | L2 |
+| Analyze repeated rejection reasons | Transcript | Harness and Skill improvement candidates | L2 (PR) |
+| Trim the injected layer | Injected context | Proposal to move details down and leave links | L2 (PR) |
+
+Rules:
+
+1. L1 results apply at once and notify the Maker. The Maker can revert them. L2 results go to the next day's approval queue.
+2. Dreaming does not change the transcript layer.
+3. L1 cannot change the injected layer or Knowledge. Wrong content there spreads to every session and project.
+4. Verify frequently changed or frequently read pages first. Do not verify every note every time.
+5. Each run has a cost cap. The Budget Router enforces it.
+
+### 10.5 Injected Context Cap
+
+Keep the content injected into every session small. Longer instructions make models follow them less.
+
+| Item | Cap (proposed) |
 |---|---|
-| Find duplicates | Merge proposals |
-| Find contradictions | Conflict report |
-| Find stale knowledge | Review requests |
-| Find patterns across projects | Knowledge promotion candidates |
-| Analyze repeated rejection reasons | Harness and Skill improvement candidates |
+| `AGENTS.md` (Platform shared + project) | 200 lines |
+| Memory index | 100 lines. Page titles, one-line descriptions, and links only. |
+| Automatic recall at task start | 5 records or fewer, `verified` or higher |
 
-Dreaming does not change Memory directly. All results go to the next day's approval queue.
+CI fails when a cap is exceeded. Dreaming proposes moving details to lower layers.
+
+### 10.6 Memory Evaluation
+
+Measure whether Memory actually helps. The Eval Manager (Core Services) runs these checks.
+
+| Metric | Formula | Threshold (proposed) |
+|---|---|---|
+| Memory effect | Task success with Memory − success without Memory (same eval set) | Greater than 0 |
+| Abstraction ratio | Wiki size ÷ source document size | Less than 1. At 1 or more, the Wiki did not abstract anything. |
+| Correction rate | Notes corrected by Dreaming ÷ notes verified | Watch the trend. A sudden rise means note quality needs a check. |
+| Approval rate | Approved L2 proposals ÷ all L2 proposals | Below 30%, revise the Dreaming instructions. |
+| Dreaming cost | Token cost per run | Within the budget cap |
 
 ## 11. Growing Harness
 
@@ -796,10 +859,10 @@ flowchart LR
 | Phase | Scope | Exit criteria |
 |---|---|---|
 | Phase 0 Foundation | Minimal Platform harness, STE-KO rules, LOC checker, module manifest schema, repo and CI setup, sandbox check | The LOC checker blocks violating PRs in CI. Manifest schema checks work. |
-| Phase 1 Core and dev loop | Control Plane, task state machine, Module Registry (with `owns` check), HITL Gateway (L0–L2), minimal Project Orchestrator, Memory (Knowledge and Wiki store and search), Core Services (config audit, budget router, minimal eval manager), 8 modules: PM, Planning, Architecture, Server, Frontend, QA, Security, Finance (cost ledger) | One project completes PRD → ADR/Spec → build → QA verification → merge with approval gates. |
+| Phase 1 Core and dev loop | Control Plane, task state machine, Module Registry (with `owns` check), HITL Gateway (L0–L2), minimal Project Orchestrator, Memory (transcript retention and search, per-agent notes, Knowledge and Wiki store and search, injected index and cap check), Core Services (config audit, budget router, minimal eval manager), 8 modules: PM, Planning, Architecture, Server, Frontend, QA, Security, Finance (cost ledger) | One project completes PRD → ADR/Spec → build → QA verification → merge with approval gates. |
 | Phase 2 Service factory | Platform Orchestrator, project creation template, Design System (HTML SSOT, token export), Integration Manager, modules: UI/UX, App, DBA, DevOps, Branding, Business, Legal & Privacy, Release, AI Features; HITL L3, Maker Console | A new project is ready within one day. One reference service deploys with legal documents and rolls back. |
-| Phase 3 Company operations | Marketing and Analytics modules, multi-project operations, weekly company report, harness sync | Two or more projects run at the same time. The weekly report is generated automatically. |
-| Phase 4 Learning and expansion | Dreaming, vector search, automatic harness improvement candidates, CS module | Measure the approval rate of Dreaming candidates. Harness improvements raise eval scores. |
+| Phase 3 Company operations | Marketing and Analytics modules, multi-project operations, weekly company report, harness sync, minimal Dreaming (note verification and correction, duplicate merge, link and index cleanup, L1/L2 split), Memory evaluation (§10.6) | Two or more projects run at the same time. The weekly report is generated automatically. Memory effect is greater than 0. |
+| Phase 4 Learning and expansion | Extended Dreaming (cross-project patterns, Wiki building, injected layer trimming), vector search, automatic harness improvement candidates, CS module | Measure the approval rate of Dreaming candidates. Harness improvements raise eval scores. |
 
 The first build target is Flywheel itself. From Phase 1, the Platform builds itself (dogfooding). This matches previous design [ADR-0008](draft/adr/0008-platform-first.md).
 
@@ -809,7 +872,7 @@ The first build target is Flywheel itself. From Phase 1, the Platform builds its
 |---|---|---|---|
 | R-01 | Scope is too wide. There are 24 modules. | The Platform is not finished. The old problems (PB-01–04) repeat. | Split modules by phase. Phase 1 builds only 8 modules. Others get only a manifest and an empty shell. Add new functions to existing modules first (§6.4). |
 | R-02 | An agent merges a wrong change. | Lower service quality, security incident | Keep merge and deploy rights outside agents. Enforce HITL L2 and L3. |
-| R-03 | Polluted knowledge becomes a rule. | Wrong rules spread to all projects. | Allow only trust levels, evidence conditions, and human promotion. |
+| R-03 | Polluted knowledge becomes a rule. | Wrong rules spread to all projects. | Allow only trust levels, evidence conditions, and human promotion. Dreaming verifies notes against the transcript. The injected layer and Knowledge change only with L2 approval (§10.4). |
 | R-04 | AI cost grows. | Financial burden | Put the Finance budget ledger and Budget Router in Phase 1. Set per-task caps. |
 | R-05 | Too many approval requests. | Maker time runs out; approval fatigue | Measure and tune gate levels. Support batch approval. Watch KPI-03. |
 | R-06 | External tools (such as Claude Code) change behavior. | Hooks or adapters break | Wrap them with the Harness Adapter. Keep contract tests per version. |
@@ -817,6 +880,7 @@ The first build target is Flywheel itself. From Phase 1, the Platform builds its
 | R-08 | HTML SSOT is hard to move to native apps. | Design differences across platforms | Export only tokens automatically. Build components per platform and compare with visual regression. |
 | R-09 | Module responsibilities overlap. | Agents make the same artifact differently. Two sources of truth appear. | One owner module per artifact (§6.6). The Registry rejects duplicate ownership. |
 | R-10 | AI-written legal documents are published as-is. | Legal disputes, store review rejection | Mark legal documents as "draft". Publish high-risk issues only after an external expert check (HITL L3). |
+| R-11 | Memory grows but does not help. | Wasted context, lower instruction adherence, higher cost | Cap the injected layer (§10.5). Measure the abstraction ratio and Memory effect (§10.6). |
 
 ## 18. Open Decisions
 
@@ -832,6 +896,7 @@ The first build target is Flywheel itself. From Phase 1, the Platform builds its
 | Q-08 | Does LOC include blank lines and comments? | No. Count only code lines from the signature to the closing brace. |
 | Q-09 | When do legal documents need an external expert review? | Always for payments, sensitive data, location data, and services for children. |
 | Q-10 | What is the default model provider for the AI Features module? | Claude API. Each service can switch after comparison evals. |
+| Q-11 | How long are raw transcripts kept? | 90 days raw, then compressed archive. Mask secrets and personal data before storing. |
 
 ## 19. Relation to the Previous Design
 
